@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>주말살롱 프로토타입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef0f4; --phone:#ffffff; --ink:#191b22; --muted:#6b7080; --line:#e7e9ef;
+    --brand:#ff5a3c; --brand-2:#ff8a3c; --brand-soft:#fff0ec; --ok:#17a36b; --no:#9aa0ae;
+    --sans:"Noto Sans KR",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);font-family:var(--sans);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:48px;padding:24px 16px}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+
+  /* 데스크톱 설명 패널 */
+  .about{max-width:340px}
+  .about .tag{display:inline-block;font-size:12px;font-weight:700;color:var(--brand);background:var(--brand-soft);border-radius:999px;padding:4px 10px}
+  .about h1{font-size:28px;line-height:1.35;margin:14px 0 10px;font-weight:900}
+  .about p{color:var(--muted);line-height:1.7;font-size:15px}
+  .about ol{margin:18px 0 0 0;list-style:none;display:grid;gap:8px}
+  .about li{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer;padding:8px 10px;border-radius:10px}
+  .about li:hover{background:#fff}
+  .about li.on{background:#fff;font-weight:700}
+  .about li b{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12px;flex:none}
+  .about .stack{margin-top:18px;font-size:13px;color:var(--muted)}
+
+  /* 폰 프레임 */
+  .phone{width:390px;height:780px;max-height:calc(100vh - 48px);background:var(--phone);border-radius:44px;box-shadow:0 30px 80px rgba(25,27,34,.18),0 0 0 10px #191b22;position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .status{height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:14px;font-weight:700}
+  .screen{position:absolute;inset:44px 0 0 0;display:flex;flex-direction:column;background:var(--phone);transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .32s}
+  .screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
+  .screen.back{transform:translateX(-30%);opacity:0;pointer-events:none}
+  .topbar{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+  .topbar h2{font-size:17px;font-weight:700}
+  .icon-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
+  .icon-btn:hover{background:#f4f5f8}
+  .content{flex:1;overflow:auto;padding:0 20px 20px}
+  .cta{flex:none;padding:12px 20px 28px}
+  .btn{width:100%;height:54px;border-radius:16px;background:var(--brand);color:#fff;font-weight:700;font-size:16px;transition:opacity .2s}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn.ghost{background:#f4f5f8;color:var(--ink)}
+
+  /* 1. 시작 */
+  .hero-start{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 12px;background:
+    radial-gradient(80% 50% at 80% 10%,#ffd2c4 0,transparent 70%),radial-gradient(70% 50% at 10% 40%,#ffe6b8 0,transparent 70%)}
+  .logo{font-weight:900;font-size:15px;letter-spacing:.04em;color:var(--brand);margin-bottom:auto;padding-top:20px}
+  .hero-start h1{font-size:32px;line-height:1.3;font-weight:900}
+  .hero-start p{color:var(--muted);margin:12px 0 28px;line-height:1.6}
+
+  /* 2. 관심사 */
+  .q{font-size:24px;font-weight:900;line-height:1.35;margin:8px 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font-size:15px;font-weight:500;transition:all .15s}
+  .chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand);font-weight:700}
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+  .seg button{border:1.5px solid var(--line);border-radius:12px;padding:12px 0;font-size:14px}
+  .seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff;font-weight:700}
+  .label{font-size:14px;font-weight:700;margin:26px 0 4px}
+
+  /* 3. 스와이프 */
+  .deck{position:relative;flex:1;margin:4px 16px 0}
+  .card{position:absolute;inset:0;border-radius:24px;overflow:hidden;box-shadow:0 12px 30px rgba(25,27,34,.14);background:#ddd;touch-action:none;user-select:none;will-change:transform}
+  .card .art{position:absolute;inset:0}
+  .card .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.7) 100%)}
+  .card .info{position:absolute;left:0;right:0;bottom:0;padding:20px;color:#fff}
+  .card .info small{display:inline-block;background:rgba(255,255,255,.22);backdrop-filter:blur(6px);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+  .card .info h3{font-size:24px;font-weight:900;margin:8px 0 4px}
+  .card .info p{font-size:14px;opacity:.9}
+  .card .stamp{position:absolute;top:24px;padding:6px 14px;border:3px solid;border-radius:10px;font-weight:900;font-size:22px;opacity:0;transform:rotate(-12deg)}
+  .card .stamp.like{left:20px;color:#3be08f;border-color:#3be08f}
+  .card .stamp.nope{right:20px;color:#fff;border-color:#fff;transform:rotate(12deg)}
+  .actions{flex:none;display:flex;justify-content:center;gap:22px;padding:16px 0 24px}
+  .round{width:62px;height:62px;border-radius:50%;background:#fff;box-shadow:0 6px 18px rgba(25,27,34,.12);display:grid;place-items:center;transition:transform .12s}
+  .round:active{transform:scale(.92)}
+  .round.small{width:48px;height:48px;align-self:center}
+  .empty{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);gap:10px;padding:20px}
+  .empty.show{display:flex}
+  .hint{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);background:rgba(25,27,34,.82);color:#fff;font-size:13px;padding:10px 14px;border-radius:12px;pointer-events:none;transition:opacity .4s;z-index:20;white-space:nowrap}
+
+  /* 4. 매칭 */
+  .match{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;text-align:center;color:#fff;background:linear-gradient(160deg,var(--brand),var(--brand-2));opacity:0;pointer-events:none;transition:opacity .25s}
+  .match.show{opacity:1;pointer-events:auto}
+  .match h2{font-size:30px;font-weight:900}
+  .match .thumb{width:150px;height:150px;border-radius:28px;box-shadow:0 12px 30px rgba(0,0,0,.2);transform:scale(.6);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}
+  .match.show .thumb{transform:scale(1)}
+  .match .btn{background:#fff;color:var(--brand);margin-top:16px}
+  .match .btn.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6)}
+
+  /* 5. 상세 */
+  .detail-art{height:240px;flex:none;position:relative}
+  .detail-art .icon-btn{position:absolute;top:10px;left:12px;background:rgba(255,255,255,.9)}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}
+  .meta span{font-size:12px;background:#f4f5f8;border-radius:8px;padding:5px 9px;color:var(--muted)}
+  .detail h1{font-size:22px;font-weight:900;margin-top:18px}
+  .detail .host{display:flex;align-items:center;gap:10px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:12px 0}
+  .avatar{width:40px;height:40px;border-radius:50%;flex:none}
+  .detail p.desc{line-height:1.7;color:#3b3f4c;font-size:15px}
+  .price-row{display:flex;align-items:center;gap:12px}
+  .price-row .p{flex:none}
+  .price-row .p small{display:block;font-size:12px;color:var(--muted)}
+  .price-row .p b{font-size:18px}
+
+  /* 6. 예약 */
+  .slots{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .slot{border:1.5px solid var(--line);border-radius:14px;padding:12px;text-align:left}
+  .slot b{display:block;font-size:15px}
+  .slot span{font-size:12px;color:var(--muted)}
+  .slot[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+  .slot:disabled{opacity:.4;cursor:not-allowed}
+  .field{display:block;margin-top:10px}
+  .field input{width:100%;height:50px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;font:inherit;font-size:15px;outline:none}
+  .field input:focus{border-color:var(--ink)}
+  .err{color:var(--brand);font-size:12px;margin-top:6px;min-height:16px}
+  .stepper{display:flex;align-items:center;gap:14px}
+  .stepper button{width:40px;height:40px;border-radius:12px;background:#f4f5f8;font-size:20px;font-weight:700}
+  .stepper b{min-width:24px;text-align:center;font-size:17px}
+  .sum{display:flex;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px dashed var(--line);font-weight:700}
+
+  /* 7. 완료 */
+  .done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px}
+  .check{width:84px;height:84px;border-radius:50%;background:var(--ok);display:grid;place-items:center;transform:scale(0);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}
+  .screen:not(.hidden) .check{transform:scale(1)}
+  .ticket{width:100%;margin-top:18px;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:left;display:grid;gap:8px;font-size:14px}
+  .ticket div{display:flex;justify-content:space-between}
+  .ticket span{color:var(--muted)}
+
+  /* 8. 찜 목록 */
+  .list{display:grid;gap:12px}
+  .row{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:16px;text-align:left;width:100%}
+  .row .t{width:64px;height:64px;border-radius:14px;flex:none}
+  .row b{display:block;font-size:15px}
+  .row span{font-size:13px;color:var(--muted)}
+  .tabs{flex:none;display:flex;border-top:1px solid var(--line);padding:6px 0 18px}
+  .tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--no);padding-top:6px}
+  .tabs button.on{color:var(--ink);font-weight:700}
+  .count[hidden]{display:none}
+  .count{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:0 5px;margin-left:4px}
+
+  @media (max-width:860px){ .about{display:none} body{gap:0} }
+  @media (max-width:480px){
+    body{padding:0;align-items:stretch}
+    .phone{width:100%;height:100vh;height:100dvh;max-height:none;border-radius:0;box-shadow:none}
+    .status{display:none}
+    .screen{inset:0}
+  }
+</style>
+</head>
+<body>
+
+<aside class="about">
+  <span class="tag">포트폴리오 샘플 · 가상 서비스</span>
+  <h1>원데이클래스 매칭<br>작동형 프로토타입</h1>
+  <p>서버 없이 브라우저에서 바로 동작하는 모바일 웹 프로토타입입니다. 관심사 선택부터 카드 스와이프, 매칭, 예약까지 한 흐름을 실제로 눌러볼 수 있습니다.</p>
+  <ol id="flowList">
+    <li data-go="s-start"><b>1</b>시작</li>
+    <li data-go="s-pref"><b>2</b>관심사·조건 선택</li>
+    <li data-go="s-swipe"><b>3</b>카드 스와이프 · 매칭</li>
+    <li data-go="s-detail"><b>4</b>클래스 상세</li>
+    <li data-go="s-book"><b>5</b>예약 (입력 검증)</li>
+    <li data-go="s-done"><b>6</b>예약 완료</li>
+    <li data-go="s-saved"><b>7</b>찜 목록</li>
+  </ol>
+  <p class="stack">HTML · CSS · JavaScript (프레임워크 없이) · 터치/마우스 스와이프 · 더미 데이터 · 모바일 반응형</p>
+</aside>
+
+<div class="phone" id="phone">
+  <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+
+  <!-- 1. 시작 -->
+  <section class="screen" id="s-start">
+    <div class="hero-start">
+      <div class="logo">주말살롱</div>
+      <h1>이번 주말,<br>뭐 배워볼까?</h1>
+      <p>취향을 고르면 동네 원데이클래스를<br>카드로 하나씩 보여드려요.</p>
+    </div>
+    <div class="cta"><button class="btn" data-go="s-pref">시작하기</button></div>
+  </section>
+
+  <!-- 2. 관심사 -->
+  <section class="screen hidden" id="s-pref">
+    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로">←</button><h2>취향 고르기</h2><span style="width:40px"></span></div>
+    <div class="content">
+      <div class="q">관심 있는 분야를<br>골라 주세요</div>
+      <div class="sub">2개 이상 고르면 다음으로 넘어가요.</div>
+      <div class="chips" id="chips"></div>
+      <div class="label">언제 갈 수 있나요?</div>
+      <div class="seg" id="when">
+        <button type="button" aria-pressed="true" data-v="토">토요일</button>
+        <button type="button" aria-pressed="false" data-v="일">일요일</button>
+        <button type="button" aria-pressed="false" data-v="상관없음">상관없음</button>
+      </div>
+      <div class="label">예산</div>
+      <div class="seg" id="budget">
+        <button type="button" aria-pressed="false" data-v="30000">3만 원 이하</button>
+        <button type="button" aria-pressed="true" data-v="60000">6만 원 이하</button>
+        <button type="button" aria-pressed="false" data-v="999999">상관없음</button>
+      </div>
+    </div>
+    <div class="cta"><button class="btn" id="prefNext" disabled>클래스 보러 가기</button></div>
+  </section>
+
+  <!-- 3. 스와이프 -->
+  <section class="screen hidden" id="s-swipe">
+    <div class="topbar">
+      <button class="icon-btn" data-back aria-label="뒤로">←</button>
+      <h2 id="deckTitle">추천 클래스</h2>
+      <button class="icon-btn" data-go="s-saved" aria-label="찜 목록">♥<span class="count" id="savedCount" hidden>0</span></button>
+    </div>
+    <div class="deck" id="deck">
+      <div class="hint" id="hint">← 넘기기 · 찜하기 →</div>
+      <div class="empty" id="empty">
+        <b style="color:var(--ink);font-size:18px">추천을 다 봤어요</b>
+        <span>조건을 바꾸거나 찜한 클래스를 확인해 보세요.</span>
+        <button class="btn ghost" style="width:auto;padding:0 20px;height:44px" data-go="s-pref">조건 바꾸기</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="round" id="nopeBtn" aria-label="넘기기"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9aa0ae" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="round small" id="infoBtn" aria-label="상세 보기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#191b22" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
+      <button class="round" id="likeBtn" aria-label="찜하기"><svg width="28" height="28" viewBox="0 0 24 24" fill="#ff5a3c"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.2 5 6.8 5c2 0 3.4 1.1 5.2 3 1.8-1.9 3.2-3 5.2-3 3.6 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg></button>
+    </div>
+    <div class="match" id="match">
+      <div class="thumb" id="matchThumb"></div>
+      <h2>찜했어요!</h2>
+      <p id="matchText">이번 주말 자리가 남아 있어요.</p>
+      <button class="btn" id="matchBook">바로 예약하기</button>
+      <button class="btn ghost" id="matchKeep">계속 둘러보기</button>
+    </div>
+  </section>
+
+  <!-- 4. 상세 -->
+  <section class="screen hidden detail" id="s-detail">
+    <div class="detail-art" id="dArt"><button class="icon-btn" data-back aria-label="뒤로">←</button></div>
+    <div class="content">
+      <h1 id="dTitle"></h1>
+      <div class="meta" id="dMeta"></div>
+      <div class="host"><div class="avatar" id="dAvatar"></div><div><b id="dHost"></b><div style="font-size:13px;color:var(--muted)" id="dHostSub"></div></div></div>
+      <p class="desc" id="dDesc"></p>
+    </div>
+    <div class="cta price-row">
+      <div class="p"><small>1인</small><b id="dPrice"></b></div>
+      <button class="btn" data-go="s-book">예약하기</button>
+    </div>
+  </section>
+
+  <!-- 5. 예약 -->
+  <section class="screen hidden" id="s-book">
+    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로">←</button><h2>예약하기</h2><span style="width:40px"></span></div>
+    <div class="content">
+      <div class="label" style="margin-top:4px">시간 선택</div>
+      <div class="slots" id="slots"></div>
+      <div class="label">인원</div>
+      <div class="stepper"><button type="button" id="minus" aria-label="인원 줄이기">−</button><b id="ppl">1</b><button type="button" id="plus" aria-label="인원 늘리기">+</button><span style="font-size:13px;color:var(--muted)">최대 4명</span></div>
+      <div class="label">예약자 정보</div>
+      <label class="field"><input id="name" placeholder="이름" autocomplete="off"></label>
+      <label class="field"><input id="phoneNum" placeholder="휴대폰 번호 (예: 010-1234-5678)" inputmode="numeric" autocomplete="off"></label>
+      <div class="err" id="err"></div>
+      <div class="sum"><span>결제 예정 금액</span><span id="total"></span></div>
+    </div>
+    <div class="cta"><button class="btn" id="bookBtn" disabled>예약 확정</button></div>
+  </section>
+
+  <!-- 6. 완료 -->
+  <section class="screen hidden" id="s-done">
+    <div class="done">
+      <div class="check"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2 style="font-size:22px;font-weight:900;margin-top:10px">예약이 완료됐어요</h2>
+      <p style="color:var(--muted);font-size:14px">시작 하루 전에 문자로 다시 알려드릴게요.</p>
+      <div class="ticket" id="ticket"></div>
+    </div>
+    <div class="cta"><button class="btn" id="doneBtn">다른 클래스 더 보기</button></div>
+  </section>
+
+  <!-- 7. 찜 목록 -->
+  <section class="screen hidden" id="s-saved">
+    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로">←</button><h2>찜한 클래스</h2><span style="width:40px"></span></div>
+    <div class="content"><div class="list" id="savedList"></div></div>
+    <div class="tabs">
+      <button data-go="s-swipe"><span>◎</span>둘러보기</button>
+      <button class="on"><span>♥</span>찜</button>
+      <button data-go="s-done" id="tabBooked" disabled style="opacity:.4"><span>▣</span>예약</button>
+    </div>
+  </section>
+</div>
+
+<script>
+// ---------- 더미 데이터 (가상) ----------
+const CATS = ["도자기","베이킹","향수","가죽공예","드로잉","꽃꽂이","요리","캔들"];
+const CLASSES = [
+  {id:1,cat:"도자기",title:"물레로 빚는 나만의 머그컵",area:"성수동",time:"2시간",price:48000,host:"흙과손 공방",hostSub:"클래스 312회 · 후기 4.9",c:["#c98b62","#7a4a33"],desc:"처음이어도 괜찮아요. 물레 사용법부터 차근차근 배우고, 완성한 컵은 가마에 구워 2주 뒤 택배로 보내드립니다.",days:["토","일"]},
+  {id:2,cat:"베이킹",title:"버터 향 가득 스콘 4종",area:"망원동",time:"2시간 30분",price:42000,host:"오븐노트",hostSub:"클래스 128회 · 후기 4.8",c:["#f2c879","#c47f2c"],desc:"플레인, 얼그레이, 초코칩, 치즈 스콘을 직접 반죽하고 구워 가져갑니다. 앞치마와 재료는 모두 준비돼 있어요.",days:["토"]},
+  {id:3,cat:"향수",title:"나를 닮은 향수 50ml",area:"연남동",time:"1시간 30분",price:55000,host:"노트앤노트",hostSub:"클래스 540회 · 후기 4.9",c:["#c5b3e6","#6c5aa8"],desc:"30가지 향료를 시향하며 탑·미들·베이스 노트를 골라 블렌딩합니다. 레시피 카드를 드려 다시 주문할 수 있어요.",days:["토","일"]},
+  {id:4,cat:"가죽공예",title:"손바느질 카드지갑",area:"을지로",time:"3시간",price:39000,host:"레더룸",hostSub:"클래스 96회 · 후기 4.7",c:["#a8714a","#4e3020"],desc:"이탈리아 베지터블 가죽으로 카드지갑을 만듭니다. 각인 서비스로 이니셜을 새겨 드려요.",days:["일"]},
+  {id:5,cat:"드로잉",title:"아이패드 감성 일러스트",area:"합정동",time:"2시간",price:29000,host:"선과색",hostSub:"클래스 210회 · 후기 4.8",c:["#8fd3c7","#2f7f8a"],desc:"브러시 고르는 법부터 채색까지, 좋아하는 사진 한 장을 일러스트로 완성합니다. 기기는 대여해 드려요.",days:["토","일"]},
+  {id:6,cat:"꽃꽂이",title:"제철 꽃 핸드타이드 부케",area:"서촌",time:"1시간 30분",price:58000,host:"꽃의시간",hostSub:"클래스 187회 · 후기 4.9",c:["#f5a9b8","#c2456a"],desc:"그 주에 들어온 제철 꽃으로 부케를 만들고 포장법까지 배웁니다.",days:["토"]},
+  {id:7,cat:"요리",title:"집에서 하는 생면 파스타",area:"한남동",time:"2시간 30분",price:62000,host:"키친오브제",hostSub:"클래스 75회 · 후기 4.8",c:["#f0d27a","#b5562d"],desc:"반죽부터 탈리아텔레까지 직접 뽑고, 두 가지 소스로 함께 시식합니다.",days:["일"]},
+  {id:8,cat:"캔들",title:"소이 왁스 컨테이너 캔들",area:"익선동",time:"1시간",price:25000,host:"웜라이트",hostSub:"클래스 402회 · 후기 4.7",c:["#f3dfc4","#b08358"],desc:"향을 고르고 색을 입혀 유리 용기 캔들 2개를 만듭니다. 짧고 가볍게 즐기기 좋아요.",days:["토","일"]},
+];
+const SLOT_TIMES = ["11:00","13:30","16:00","18:30"];
+
+// ---------- 상태 ----------
+const state = {cats:new Set(["도자기","베이킹"]), when:"토", budget:60000, deck:[], saved:[], current:null, slot:null, ppl:1, booked:null};
+const navStack = [];
+const won = n => n.toLocaleString("ko-KR")+"원";
+const art = (c) => `linear-gradient(150deg, ${c[0]}, ${c[1]})`;
+
+// ---------- 화면 이동 ----------
+let currentId = "s-start";
+function go(id, isBack){
+  if(id===currentId) return;
+  const from = document.getElementById(currentId), to = document.getElementById(id);
+  if(!isBack) navStack.push(currentId);
+  from.classList.add(isBack ? "hidden" : "back");
+  to.classList.remove("hidden","back");
+  // 뒤로 갔을 때 나머지 화면 정리
+  document.querySelectorAll(".screen").forEach(s=>{ if(s!==to && s!==from){ s.classList.remove("back"); s.classList.add("hidden"); }});
+  if(isBack) setTimeout(()=>{ from.classList.remove("back"); },0);
+  currentId = id;
+  onEnter(id);
+  document.querySelectorAll("#flowList li").forEach(li=>li.classList.toggle("on", li.dataset.go===id));
+}
+function back(){ const prev = navStack.pop(); if(prev) go(prev, true); }
+document.addEventListener("click", e=>{
+  const g = e.target.closest("[data-go]"); if(g && !g.disabled){ prepareJump(g.dataset.go); go(g.dataset.go); return; }
+  if(e.target.closest("[data-back]")) back();
+});
+// 설명 패널에서 바로 건너뛸 때 필요한 데이터 채우기
+function prepareJump(id){
+  if(["s-detail","s-book"].includes(id) && !state.current) state.current = CLASSES[0];
+  if(id==="s-done" && !state.booked){ state.current = state.current||CLASSES[0]; state.slot = state.slot||"토 13:30"; state.booked = {cls:state.current, slot:state.slot, ppl:state.ppl, name:"홍길동"}; }
+  if(id==="s-swipe" && !state.deck.length && !document.querySelector(".card")) buildDeck();
+}
+function onEnter(id){
+  if(id==="s-detail") renderDetail();
+  if(id==="s-book") renderBook();
+  if(id==="s-done") renderDone();
+  if(id==="s-saved") renderSaved();
+}
+
+// ---------- 2. 관심사 ----------
+const chipsEl = document.getElementById("chips");
+chipsEl.innerHTML = CATS.map(c=>`<button type="button" class="chip" aria-pressed="${state.cats.has(c)}" data-c="${c}">${c}</button>`).join("");
+chipsEl.addEventListener("click", e=>{
+  const b = e.target.closest(".chip"); if(!b) return;
+  const c = b.dataset.c; state.cats.has(c) ? state.cats.delete(c) : state.cats.add(c);
+  b.setAttribute("aria-pressed", state.cats.has(c)); syncPref();
+});
+function seg(id, key, num){
+  const el = document.getElementById(id);
+  el.addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    el.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+    state[key] = num ? Number(b.dataset.v) : b.dataset.v;
+  });
+}
+seg("when","when"); seg("budget","budget",true);
+const prefNext = document.getElementById("prefNext");
+function syncPref(){ prefNext.disabled = state.cats.size < 2; prefNext.textContent = state.cats.size<2 ? `${2-state.cats.size}개 더 골라 주세요` : "클래스 보러 가기"; }
+syncPref();
+prefNext.addEventListener("click", ()=>{ buildDeck(); go("s-swipe"); });
+
+// ---------- 3. 스와이프 ----------
+const deckEl = document.getElementById("deck");
+function buildDeck(){
+  deckEl.querySelectorAll(".card").forEach(c=>c.remove());
+  let list = CLASSES.filter(c => state.cats.has(c.cat) && c.price <= state.budget && (state.when==="상관없음" || c.days.includes(state.when)));
+  // 조건에 맞는 게 적으면 나머지 분야도 뒤에 붙여서 덱이 비지 않게
+  if(list.length < 3) list = list.concat(CLASSES.filter(c=>!list.includes(c) && c.price<=state.budget));
+  state.deck = list.filter(c=>!state.saved.includes(c));
+  document.getElementById("deckTitle").textContent = `추천 클래스 ${state.deck.length}개`;
+  [...state.deck].reverse().forEach(c=>deckEl.appendChild(makeCard(c)));
+  document.getElementById("empty").classList.toggle("show", state.deck.length===0);
+  layoutStack();
+}
+function makeCard(c){
+  const el = document.createElement("div");
+  el.className = "card"; el.dataset.id = c.id;
+  el.innerHTML = `<div class="art" style="background:${art(c.c)}"></div>
+    <svg class="art" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <circle cx="230" cy="90" r="70" fill="rgba(255,255,255,.18)"/><circle cx="70" cy="170" r="110" fill="rgba(255,255,255,.10)"/>
+    </svg>
+    <div class="shade"></div>
+    <div class="stamp like">찜</div><div class="stamp nope">패스</div>
+    <div class="info"><small>${c.cat} · ${c.area}</small><h3>${c.title}</h3><p>${c.time} · ${won(c.price)} · ${c.days.map(d=>d+"요일").join("/")}</p></div>`;
+  enableDrag(el, c);
+  return el;
+}
+function topCard(){ const cards = deckEl.querySelectorAll(".card:not(.gone)"); return cards[cards.length-1]; }
+function layoutStack(){
+  const cards = [...deckEl.querySelectorAll(".card:not(.gone)")].reverse();
+  cards.forEach((el,i)=>{ if(i>2){ el.style.opacity=0; return; } el.style.opacity=1; el.style.transition="transform .25s"; el.style.transform=`translateY(${i*10}px) scale(${1-i*0.04})`; el.style.zIndex = 10-i; });
+  state.current = cards[0] ? CLASSES.find(c=>c.id==cards[0].dataset.id) : null;
+}
+function enableDrag(el, c){
+  let sx=0, sy=0, dx=0, dy=0, dragging=false;
+  const like = el.querySelector(".stamp.like"), nope = el.querySelector(".stamp.nope");
+  el.addEventListener("pointerdown", e=>{ if(el!==topCard()) return; dragging=true; sx=e.clientX; sy=e.clientY; el.setPointerCapture(e.pointerId); el.style.transition="none"; hideHint(); });
+  el.addEventListener("pointermove", e=>{
+    if(!dragging) return; dx=e.clientX-sx; dy=e.clientY-sy;
+    el.style.transform = `translate(${dx}px,${dy}px) rotate(${dx/18}deg)`;
+    like.style.opacity = Math.max(0, Math.min(1, dx/90)); nope.style.opacity = Math.max(0, Math.min(1, -dx/90));
+  });
+  const end = ()=>{
+    if(!dragging) return; dragging=false;
+    if(Math.abs(dx) > 100) fling(el, c, dx>0);
+    else if(Math.abs(dx) < 5 && Math.abs(dy) < 5) { go("s-detail"); el.style.transition="transform .2s"; el.style.transform=""; }
+    else { el.style.transition="transform .25s"; el.style.transform=""; like.style.opacity=0; nope.style.opacity=0; }
+    dx=dy=0;
+  };
+  el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
+}
+function fling(el, c, liked){
+  el.classList.add("gone");
+  el.style.transition="transform .35s ease-out, opacity .35s";
+  el.style.transform=`translate(${liked?500:-500}px, -40px) rotate(${liked?25:-25}deg)`;
+  el.style.opacity=0;
+  setTimeout(()=>el.remove(), 360);
+  state.deck = state.deck.filter(x=>x!==c);
+  if(liked){ state.saved.push(c); updateCount(); showMatch(c); }
+  layoutStack();
+  document.getElementById("empty").classList.toggle("show", state.deck.length===0);
+}
+function swipeTop(liked){ const el = topCard(); if(!el) return; hideHint(); fling(el, CLASSES.find(c=>c.id==el.dataset.id), liked); }
+document.getElementById("likeBtn").onclick = ()=>swipeTop(true);
+document.getElementById("nopeBtn").onclick = ()=>swipeTop(false);
+document.getElementById("infoBtn").onclick = ()=>{ if(state.current) go("s-detail"); };
+function hideHint(){ document.getElementById("hint").style.opacity=0; }
+function updateCount(){ const el = document.getElementById("savedCount"); el.hidden = state.saved.length===0; el.textContent = state.saved.length; }
+
+const matchEl = document.getElementById("match");
+function showMatch(c){
+  state.matched = c;
+  document.getElementById("matchThumb").style.background = art(c.c);
+  document.getElementById("matchText").textContent = `${c.title} · 이번 주말 자리가 남아 있어요.`;
+  matchEl.classList.add("show");
+}
+document.getElementById("matchKeep").onclick = ()=>matchEl.classList.remove("show");
+document.getElementById("matchBook").onclick = ()=>{ matchEl.classList.remove("show"); state.current = state.matched; go("s-book"); };
+
+// ---------- 4. 상세 ----------
+function renderDetail(){
+  const c = state.current; if(!c) return;
+  document.getElementById("dArt").style.background = art(c.c);
+  document.getElementById("dTitle").textContent = c.title;
+  document.getElementById("dMeta").innerHTML = [c.cat, c.area, c.time, c.days.map(d=>d+"요일").join("/")].map(t=>`<span>${t}</span>`).join("");
+  document.getElementById("dAvatar").style.background = art([c.c[1], c.c[0]]);
+  document.getElementById("dHost").textContent = c.host;
+  document.getElementById("dHostSub").textContent = c.hostSub;
+  document.getElementById("dDesc").textContent = c.desc;
+  document.getElementById("dPrice").textContent = won(c.price);
+}
+
+// ---------- 5. 예약 ----------
+const slotsEl = document.getElementById("slots"), bookBtn = document.getElementById("bookBtn");
+const nameEl = document.getElementById("name"), phoneEl = document.getElementById("phoneNum"), errEl = document.getElementById("err");
+function renderBook(){
+  const c = state.current; if(!c) return;
+  state.slot = null;
+  // 매진 칸은 클래스 id로 고정해서 매번 같은 자리가 매진으로 보이게
+  slotsEl.innerHTML = c.days.flatMap(d => SLOT_TIMES.map((t,i)=>{
+    const full = (c.id + i + d.charCodeAt(0)) % 5 === 0;
+    return `<button type="button" class="slot" aria-pressed="false" data-s="${d} ${t}" ${full?"disabled":""}><b>${d}요일 ${t}</b><span>${full?"마감":"자리 "+(2+(c.id*i)%5)+"석 남음"}</span></button>`;
+  })).join("");
+  updateTotal(); validate();
+}
+slotsEl.addEventListener("click", e=>{
+  const b = e.target.closest(".slot"); if(!b || b.disabled) return;
+  slotsEl.querySelectorAll(".slot").forEach(x=>x.setAttribute("aria-pressed", x===b));
+  state.slot = b.dataset.s; validate();
+});
+document.getElementById("minus").onclick = ()=>{ state.ppl = Math.max(1, state.ppl-1); updateTotal(); };
+document.getElementById("plus").onclick = ()=>{ state.ppl = Math.min(4, state.ppl+1); updateTotal(); };
+function updateTotal(){ document.getElementById("ppl").textContent = state.ppl; if(state.current) document.getElementById("total").textContent = won(state.current.price*state.ppl); }
+phoneEl.addEventListener("input", ()=>{
+  const d = phoneEl.value.replace(/\D/g,"").slice(0,11);
+  phoneEl.value = d.length>7 ? `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}` : d.length>3 ? `${d.slice(0,3)}-${d.slice(3)}` : d;
+  validate(true);
+});
+nameEl.addEventListener("input", ()=>validate(true));
+function validate(showErr){
+  const nameOk = nameEl.value.trim().length >= 2;
+  const phoneOk = /^01[016789]-\d{3,4}-\d{4}$/.test(phoneEl.value);
+  let msg = "";
+  if(showErr){
+    if(nameEl.value && !nameOk) msg = "이름을 2자 이상 입력해 주세요.";
+    else if(phoneEl.value.length >= 12 && !phoneOk) msg = "휴대폰 번호 형식을 확인해 주세요.";
+  }
+  errEl.textContent = msg;
+  bookBtn.disabled = !(state.slot && nameOk && phoneOk);
+  bookBtn.textContent = !state.slot ? "시간을 선택해 주세요" : (!nameOk || !phoneOk) ? "예약자 정보를 입력해 주세요" : `${won(state.current.price*state.ppl)} 예약 확정`;
+}
+bookBtn.onclick = ()=>{
+  state.booked = {cls:state.current, slot:state.slot, ppl:state.ppl, name:nameEl.value.trim()};
+  const tab = document.getElementById("tabBooked"); tab.disabled=false; tab.style.opacity=1;
+  go("s-done");
+};
+
+// ---------- 6. 완료 ----------
+function renderDone(){
+  const b = state.booked; if(!b) return;
+  document.getElementById("ticket").innerHTML = `
+    <div><span>클래스</span><b>${b.cls.title}</b></div>
+    <div><span>장소</span><b>${b.cls.area} · ${b.cls.host}</b></div>
+    <div><span>일시</span><b>${b.slot.replace(" ","요일 ")}</b></div>
+    <div><span>인원</span><b>${b.ppl}명</b></div>
+    <div><span>예약자</span><b>${b.name}</b></div>
+    <div><span>금액</span><b>${won(b.cls.price*b.ppl)}</b></div>`;
+}
+document.getElementById("doneBtn").onclick = ()=>{ navStack.length=0; navStack.push("s-start","s-pref"); if(!deckEl.querySelector(".card")) buildDeck(); go("s-swipe"); };
+
+// ---------- 7. 찜 목록 ----------
+function renderSaved(){
+  const el = document.getElementById("savedList");
+  el.innerHTML = state.saved.length ? state.saved.map(c=>`
+    <button class="row" data-id="${c.id}"><div class="t" style="background:${art(c.c)}"></div>
+    <div><b>${c.title}</b><span>${c.area} · ${won(c.price)}</span></div></button>`).join("")
+    : `<p style="color:var(--muted);text-align:center;margin-top:40px">아직 찜한 클래스가 없어요.<br>카드를 오른쪽으로 넘겨 보세요.</p>`;
+}
+document.getElementById("savedList").addEventListener("click", e=>{
+  const r = e.target.closest(".row"); if(!r) return;
+  state.current = CLASSES.find(c=>c.id==r.dataset.id); go("s-detail");
+});
+
+document.querySelector('#flowList li').classList.add("on");
+</script>
+</body>
+</html>
