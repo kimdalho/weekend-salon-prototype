@@ -3,153 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>주말살롱 프로토타입</title>
+<title>주말살롱 | 취향으로 만나는 특별한 주말</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#eef0f4; --phone:#ffffff; --ink:#191b22; --muted:#6b7080; --line:#e7e9ef;
-    --brand:#ff5a3c; --brand-2:#ff8a3c; --brand-soft:#fff0ec; --ok:#17a36b; --no:#9aa0ae;
-    --sans:"Noto Sans KR",system-ui,sans-serif;
-  }
+  :root{--bg:#e9eae5;--phone:#faf9f5;--ink:#242920;--muted:#7b8178;--line:#e5e7df;--brand:#376c55;--brand-2:#8ca58e;--brand-soft:#eaf2e8;--ok:#376c55;--no:#9ba29a;--sans:"Pretendard","Noto Sans KR",system-ui,sans-serif}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{background:var(--bg);font-family:var(--sans);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:48px;padding:24px 16px}
-  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
-
-  /* 데스크톱 설명 패널 */
-  .about{max-width:340px}
-  .about .tag{display:inline-block;font-size:12px;font-weight:700;color:var(--brand);background:var(--brand-soft);border-radius:999px;padding:4px 10px}
-  .about h1{font-size:28px;line-height:1.35;margin:14px 0 10px;font-weight:900}
-  .about p{color:var(--muted);line-height:1.7;font-size:15px}
-  .about ol{margin:18px 0 0 0;list-style:none;display:grid;gap:8px}
-  .about li{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer;padding:8px 10px;border-radius:10px}
-  .about li:hover{background:#fff}
-  .about li.on{background:#fff;font-weight:700}
-  .about li b{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12px;flex:none}
-  .about .stack{margin-top:18px;font-size:13px;color:var(--muted)}
-
-  /* 폰 프레임 */
-  .phone{width:390px;height:780px;max-height:calc(100vh - 48px);background:var(--phone);border-radius:44px;box-shadow:0 30px 80px rgba(25,27,34,.18),0 0 0 10px #191b22;position:relative;overflow:hidden;display:flex;flex-direction:column}
-  .status{height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:14px;font-weight:700}
-  .screen{position:absolute;inset:44px 0 0 0;display:flex;flex-direction:column;background:var(--phone);transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .32s}
-  .screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
-  .screen.back{transform:translateX(-30%);opacity:0;pointer-events:none}
-  .topbar{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
-  .topbar h2{font-size:17px;font-weight:700}
-  .icon-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
-  .icon-btn:hover{background:#f4f5f8}
-  .content{flex:1;overflow:auto;padding:0 20px 20px}
-  .cta{flex:none;padding:12px 20px 28px}
-  .btn{width:100%;height:54px;border-radius:16px;background:var(--brand);color:#fff;font-weight:700;font-size:16px;transition:opacity .2s}
-  .btn:disabled{opacity:.35;cursor:not-allowed}
-  .btn.ghost{background:#f4f5f8;color:var(--ink)}
-
-  /* 1. 시작 */
-  .hero-start{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 12px;background:
-    radial-gradient(80% 50% at 80% 10%,#ffd2c4 0,transparent 70%),radial-gradient(70% 50% at 10% 40%,#ffe6b8 0,transparent 70%)}
-  .logo{font-weight:900;font-size:15px;letter-spacing:.04em;color:var(--brand);margin-bottom:auto;padding-top:20px}
-  .hero-start h1{font-size:32px;line-height:1.3;font-weight:900}
-  .hero-start p{color:var(--muted);margin:12px 0 28px;line-height:1.6}
-
-  /* 2. 관심사 */
-  .q{font-size:24px;font-weight:900;line-height:1.35;margin:8px 0 6px}
-  .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
-  .chips{display:flex;flex-wrap:wrap;gap:10px}
-  .chip{border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font-size:15px;font-weight:500;transition:all .15s}
-  .chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand);font-weight:700}
-  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-  .seg button{border:1.5px solid var(--line);border-radius:12px;padding:12px 0;font-size:14px}
-  .seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff;font-weight:700}
-  .label{font-size:14px;font-weight:700;margin:26px 0 4px}
-
-  /* 3. 스와이프 */
-  .deck{position:relative;flex:1;margin:4px 16px 0}
-  .card{position:absolute;inset:0;border-radius:24px;overflow:hidden;box-shadow:0 12px 30px rgba(25,27,34,.14);background:#ddd;touch-action:none;user-select:none;will-change:transform}
-  .card .art{position:absolute;inset:0}
-  .card .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.7) 100%)}
-  .card .info{position:absolute;left:0;right:0;bottom:0;padding:20px;color:#fff}
-  .card .info small{display:inline-block;background:rgba(255,255,255,.22);backdrop-filter:blur(6px);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
-  .card .info h3{font-size:24px;font-weight:900;margin:8px 0 4px}
-  .card .info p{font-size:14px;opacity:.9}
-  .card .stamp{position:absolute;top:24px;padding:6px 14px;border:3px solid;border-radius:10px;font-weight:900;font-size:22px;opacity:0;transform:rotate(-12deg)}
-  .card .stamp.like{left:20px;color:#3be08f;border-color:#3be08f}
-  .card .stamp.nope{right:20px;color:#fff;border-color:#fff;transform:rotate(12deg)}
-  .actions{flex:none;display:flex;justify-content:center;gap:22px;padding:16px 0 24px}
-  .round{width:62px;height:62px;border-radius:50%;background:#fff;box-shadow:0 6px 18px rgba(25,27,34,.12);display:grid;place-items:center;transition:transform .12s}
-  .round:active{transform:scale(.92)}
-  .round.small{width:48px;height:48px;align-self:center}
-  .empty{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);gap:10px;padding:20px}
-  .empty.show{display:flex}
-  .hint{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);background:rgba(25,27,34,.82);color:#fff;font-size:13px;padding:10px 14px;border-radius:12px;pointer-events:none;transition:opacity .4s;z-index:20;white-space:nowrap}
-
-  /* 4. 매칭 */
-  .match{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;text-align:center;color:#fff;background:linear-gradient(160deg,var(--brand),var(--brand-2));opacity:0;pointer-events:none;transition:opacity .25s}
-  .match.show{opacity:1;pointer-events:auto}
-  .match h2{font-size:30px;font-weight:900}
-  .match .thumb{width:150px;height:150px;border-radius:28px;box-shadow:0 12px 30px rgba(0,0,0,.2);transform:scale(.6);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}
-  .match.show .thumb{transform:scale(1)}
-  .match .btn{background:#fff;color:var(--brand);margin-top:16px}
-  .match .btn.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6)}
-
-  /* 5. 상세 */
-  .detail-art{height:240px;flex:none;position:relative}
-  .detail-art .icon-btn{position:absolute;top:10px;left:12px;background:rgba(255,255,255,.9)}
-  .meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}
-  .meta span{font-size:12px;background:#f4f5f8;border-radius:8px;padding:5px 9px;color:var(--muted)}
-  .detail h1{font-size:22px;font-weight:900;margin-top:18px}
-  .detail .host{display:flex;align-items:center;gap:10px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:12px 0}
-  .avatar{width:40px;height:40px;border-radius:50%;flex:none}
-  .detail p.desc{line-height:1.7;color:#3b3f4c;font-size:15px}
-  .price-row{display:flex;align-items:center;gap:12px}
-  .price-row .p{flex:none}
-  .price-row .p small{display:block;font-size:12px;color:var(--muted)}
-  .price-row .p b{font-size:18px}
-
-  /* 6. 예약 */
-  .slots{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .slot{border:1.5px solid var(--line);border-radius:14px;padding:12px;text-align:left}
-  .slot b{display:block;font-size:15px}
-  .slot span{font-size:12px;color:var(--muted)}
-  .slot[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
-  .slot:disabled{opacity:.4;cursor:not-allowed}
-  .field{display:block;margin-top:10px}
-  .field input{width:100%;height:50px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;font:inherit;font-size:15px;outline:none}
-  .field input:focus{border-color:var(--ink)}
-  .err{color:var(--brand);font-size:12px;margin-top:6px;min-height:16px}
-  .stepper{display:flex;align-items:center;gap:14px}
-  .stepper button{width:40px;height:40px;border-radius:12px;background:#f4f5f8;font-size:20px;font-weight:700}
-  .stepper b{min-width:24px;text-align:center;font-size:17px}
-  .sum{display:flex;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px dashed var(--line);font-weight:700}
-
-  /* 7. 완료 */
-  .done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px}
-  .check{width:84px;height:84px;border-radius:50%;background:var(--ok);display:grid;place-items:center;transform:scale(0);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}
-  .screen:not(.hidden) .check{transform:scale(1)}
-  .ticket{width:100%;margin-top:18px;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:left;display:grid;gap:8px;font-size:14px}
-  .ticket div{display:flex;justify-content:space-between}
-  .ticket span{color:var(--muted)}
-
-  /* 8. 찜 목록 */
-  .list{display:grid;gap:12px}
-  .row{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:16px;text-align:left;width:100%}
-  .row .t{width:64px;height:64px;border-radius:14px;flex:none}
-  .row b{display:block;font-size:15px}
-  .row span{font-size:13px;color:var(--muted)}
-  .tabs{flex:none;display:flex;border-top:1px solid var(--line);padding:6px 0 18px}
-  .tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--no);padding-top:6px}
-  .tabs button.on{color:var(--ink);font-weight:700}
-  .count[hidden]{display:none}
-  .count{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:0 5px;margin-left:4px}
-
-  @media (max-width:860px){ .about{display:none} body{gap:0} }
-  @media (max-width:480px){
-    body{padding:0;align-items:stretch}
-    .phone{width:100%;height:100vh;height:100dvh;max-height:none;border-radius:0;box-shadow:none}
-    .status{display:none}
-    .screen{inset:0}
-  }
+  html,body{min-height:100%}body{font-family:var(--sans);color:var(--ink);background:radial-gradient(circle at 18% 10%,#f8f8f1 0,transparent 39%),radial-gradient(circle at 95% 85%,#d9e3d7 0,transparent 40%),var(--bg);display:flex;justify-content:center;align-items:center;gap:80px;padding:36px 24px}
+  button,input{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #9ebcaa;outline-offset:3px}button:active:not(:disabled){transform:scale(.97)}button:disabled{cursor:not-allowed}
+  .about{width:360px;max-width:40vw}.about .tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.07em;font-weight:800;color:var(--brand);background:#e3ede2;padding:9px 13px;border-radius:100px}.about .tag:before{content:'';width:6px;height:6px;border-radius:50%;background:var(--brand)}.about h1{font-size:39px;letter-spacing:-.06em;line-height:1.28;font-weight:800;margin:24px 0 16px}.about p{color:#697368;line-height:1.85;font-size:14px;word-break:keep-all}.about ol{list-style:none;margin:29px 0 22px;display:grid;gap:5px}.about li{display:flex;align-items:center;gap:14px;border-radius:13px;padding:11px 14px;font-size:13px;font-weight:600;color:#7b8278;cursor:pointer;transition:background .2s,color .2s}.about li:hover{background:#ffffffb0}.about li.on{background:#fff;color:var(--brand);box-shadow:0 9px 24px #3548310d}.about li b{width:25px;height:25px;border-radius:8px;background:#e1e6dd;color:#6d786b;display:grid;place-items:center;font-size:11px;flex:none}.about li.on b{background:var(--brand);color:#fff}.about .stack{padding-top:20px;border-top:1px solid #d6dbd2;font-size:12px;line-height:2}
+  .phone{width:390px;height:790px;max-height:calc(100dvh - 60px);position:relative;flex:none;background:var(--phone);border-radius:44px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px #29392b30,0 0 0 8px #27332d,0 0 0 10px #58645a}.status{height:47px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-size:13px;font-weight:800;background:var(--phone);z-index:50;position:relative}.status-icons{display:flex;align-items:center;gap:6px}.status svg{display:block}.screen{position:absolute;inset:47px 0 0;display:flex;flex-direction:column;background:var(--phone);transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .32s;overflow:hidden}.screen.hidden{transform:translateX(105%);opacity:0;pointer-events:none}.screen.back{transform:translateX(-28%);opacity:0;pointer-events:none}.topbar{height:60px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 19px}.topbar h2{font-size:16px;font-weight:800;letter-spacing:-.045em}.icon-btn{display:inline-grid;place-items:center;width:42px;height:42px;flex:none;border-radius:50%;position:relative;transition:background .2s}.icon-btn:hover{background:#eaeee8}.icon-btn svg{width:22px;height:22px}.content{flex:1;overflow:auto;padding:8px 23px 22px;scrollbar-width:none}.content::-webkit-scrollbar{display:none}.cta{flex:none;padding:12px 22px max(24px,env(safe-area-inset-bottom));background:var(--phone)}.btn{width:100%;height:55px;border-radius:16px;color:#fff;background:var(--brand);font-size:15px;font-weight:800;letter-spacing:-.025em;box-shadow:0 7px 15px #376c551c;transition:transform .14s,background .2s,box-shadow .2s}.btn:hover:not(:disabled){background:#27543f;box-shadow:0 9px 20px #376c5533}.btn:disabled{background:#dfe4dd;color:#8c978c;box-shadow:none}.btn.ghost{background:#edf1eb;color:var(--brand);box-shadow:none}.btn.ghost:hover:not(:disabled){background:#e0e9df}
+  .hero-start{flex:1;min-height:0;padding:20px 25px 0;display:flex;flex-direction:column;background:#f7f8f3;position:relative;overflow:hidden}.logo{font-size:18px;color:var(--brand);font-weight:900;letter-spacing:-.075em;position:relative;z-index:2}.logo-mark{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px;background:var(--brand);color:white;border-radius:10px;margin-right:7px;vertical-align:middle}.logo-mark svg{width:19px}.hero-illustration{position:absolute;inset:68px 0 178px;display:grid;place-items:center}.hero-illustration svg{height:100%;width:100%}.hero-copy{margin-top:auto;position:relative;z-index:1;padding-bottom:18px}.eyebrow{color:var(--brand);font-weight:800;font-size:11px;letter-spacing:.11em;text-transform:uppercase;display:block;margin-bottom:13px}.hero-start h1{font-size:34px;line-height:1.36;letter-spacing:-.065em;font-weight:900}.hero-start p{font-size:14px;line-height:1.75;color:#727b70;margin:13px 0 0}.start-note{font-size:11px;text-align:center;color:#9aa398;padding:0 20px 13px;background:var(--phone)}
+  .progress-track{height:3px;background:#e9eee7;margin:0 23px 23px;border-radius:5px;overflow:hidden;flex:none}.progress-track:after{content:'';display:block;width:28%;height:100%;background:var(--brand);border-radius:5px}.q{font-size:27px;font-weight:900;letter-spacing:-.06em;line-height:1.37;margin:2px 0 9px}.sub{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:27px}.chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.chip{height:64px;border-radius:15px;border:1px solid #e2e5dc;background:#fff;font-weight:700;font-size:14px;text-align:left;padding:0 13px;display:flex;align-items:center;gap:10px;transition:all .2s}.chip .chip-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#f3f4ef;color:#6a806d;flex:none}.chip .chip-icon svg{width:20px;height:20px}.chip[aria-pressed=true]{border-color:var(--brand);background:#f0f6ef;color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}.chip[aria-pressed=true] .chip-icon{background:#dceadb}.label{font-size:13px;font-weight:800;letter-spacing:-.03em;margin:27px 0 11px}.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.seg button{border:1px solid var(--line);border-radius:12px;height:45px;background:white;font-size:12px;font-weight:650;transition:all .18s}.seg button[aria-pressed=true]{background:#e8f0e7;color:var(--brand);border-color:var(--brand);font-weight:800}
+  .deck{position:relative;flex:1;min-height:0;margin:7px 20px 0}.card{position:absolute;inset:0;border-radius:24px;overflow:hidden;background:#ddd;box-shadow:0 15px 35px #27382b25;touch-action:none;user-select:none;will-change:transform}.card .art{position:absolute;inset:0;width:100%;height:100%}.artwork{width:100%;height:100%;display:block}.card .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 43%,#101d1a12 60%,#101d1ad9 100%)}.card .info{position:absolute;left:0;right:0;bottom:0;color:#fff;padding:26px 23px 25px}.card .info small{display:inline-block;border:1px solid #ffffff65;background:#ffffff29;backdrop-filter:blur(12px);border-radius:30px;padding:7px 10px;font-size:11px;font-weight:800}.card .info h3{font-size:25px;line-height:1.35;letter-spacing:-.055em;font-weight:900;margin:12px 0 8px;word-break:keep-all}.card .info p{font-size:12px;color:#ffffffe3}.card .stamp{position:absolute;top:29px;border:2px solid;border-radius:11px;padding:8px 16px;font-size:19px;letter-spacing:-.04em;font-weight:900;opacity:0}.card .stamp.like{left:24px;color:#ecffef;border-color:#ecffef;transform:rotate(-10deg)}.card .stamp.nope{right:24px;color:white;border-color:white;transform:rotate(10deg)}.actions{display:flex;justify-content:center;align-items:center;gap:25px;padding:19px 0 23px;flex:none}.round{width:60px;height:60px;background:white;border:1px solid #e8ece5;box-shadow:0 7px 17px #29382b17;border-radius:50%;display:grid;place-items:center;transition:transform .14s,background .14s}.round:hover{background:#f0f6ef}.round.small{width:49px;height:49px}.round svg{display:block}.empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:11px;padding:25px;text-align:center;color:var(--muted);font-size:13px;background:#f3f5ef;border-radius:22px}.empty.show{display:flex}.hint{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);background:#25362fe6;color:white;font-size:12px;font-weight:700;border-radius:30px;padding:11px 18px;white-space:nowrap;z-index:20;pointer-events:none;transition:opacity .4s;box-shadow:0 8px 24px #0002}
+  .match{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:33px;text-align:center;color:#fff;background:#2d614d;opacity:0;pointer-events:none;transition:opacity .25s}.match:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 8% 12%,#ffffff22 0 1px,transparent 2px);background-size:24px 24px;opacity:.4}.match>*{position:relative}.match.show{opacity:1;pointer-events:auto}.match .thumb{height:192px;width:165px;border-radius:22px;overflow:hidden;box-shadow:0 15px 30px #09251b50;transform:scale(.7) rotate(-8deg);transition:transform .45s cubic-bezier(.2,1.4,.4,1);margin-bottom:16px}.match.show .thumb{transform:scale(1) rotate(-5deg)}.match h2{font-size:30px;font-weight:900;letter-spacing:-.055em}.match p{line-height:1.65;font-size:13px;color:#e7f0e8}.match .btn{background:white;color:var(--brand);margin-top:19px}.match .btn.ghost{margin-top:0;border:1px solid #ffffff69;background:transparent;color:white}
+  .detail-art{height:269px;flex:none;position:relative;overflow:hidden;background:#e4e9df}.detail-art>.artwork{height:100%}.detail-art .icon-btn{position:absolute;top:14px;left:16px;background:#fff;box-shadow:0 5px 16px #1d281b1c;z-index:2}.detail .content{padding-top:3px}.detail h1{font-size:23px;font-weight:900;letter-spacing:-.055em;line-height:1.4;margin-top:17px}.meta{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0 20px}.meta span{background:#edf1eb;color:#536657;font-size:11px;font-weight:700;padding:7px 10px;border-radius:8px}.detail .host{display:flex;align-items:center;gap:12px;margin:0 0 19px;padding:17px 0;border-block:1px solid var(--line);font-size:13px}.avatar{width:43px;height:43px;border-radius:50%;flex:none;overflow:hidden;border:2px solid white;box-shadow:0 0 0 1px var(--line)}.avatar .artwork{width:100%;height:100%}.detail p.desc{font-size:13px;line-height:1.95;color:#5c675e;word-break:keep-all}.price-row{display:flex;align-items:center;gap:16px;border-top:1px solid var(--line)}.price-row .p{flex:none}.price-row .p small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}.price-row .p b{font-size:19px;letter-spacing:-.04em}.price-row .btn{flex:1}
+  .booking-intro{padding:7px 0 17px}.booking-intro h3{font-size:21px;letter-spacing:-.055em}.booking-intro p{font-size:12px;color:var(--muted);margin-top:8px}.slots{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.slot{border-radius:13px;border:1px solid var(--line);background:#fff;padding:13px 12px;text-align:left;transition:all .2s}.slot b{display:block;font-size:13px;font-weight:800}.slot span{display:block;margin-top:6px;font-size:11px;color:#7c897c}.slot[aria-pressed=true]{border-color:var(--brand);background:#eaf3e9;box-shadow:inset 0 0 0 1px var(--brand)}.slot[aria-pressed=true] b{color:var(--brand)}.slot:disabled{opacity:.4;background:#f0f0ed}.field{display:block;margin-top:9px}.field input{background:white;width:100%;height:51px;border:1px solid var(--line);padding:0 15px;border-radius:13px;font-size:13px;outline:none;transition:border .2s}.field input:focus{border-color:var(--brand);box-shadow:0 0 0 3px #376c5517}.field input::placeholder{color:#a2a9a0}.err{font-size:11px;color:#bf6554;min-height:15px;margin-top:8px}.stepper{display:flex;gap:15px;align-items:center}.stepper button{width:41px;height:41px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:20px;display:grid;place-items:center}.stepper b{font-size:16px;min-width:18px;text-align:center}.sum{display:flex;justify-content:space-between;align-items:center;margin-top:22px;padding-top:19px;border-top:1px dashed #ccd6cb;font-weight:800;font-size:13px}.sum #total{font-size:20px;color:var(--brand)}
+  .done{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 24px;gap:10px}.check{height:86px;width:86px;display:grid;place-items:center;background:var(--brand);border-radius:50%;margin-bottom:9px;box-shadow:0 12px 26px #376c5530;transform:scale(0);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}.screen:not(.hidden) .check{transform:scale(1)}.ticket{width:100%;padding:19px 17px;margin-top:20px;border:1px solid var(--line);border-radius:18px;text-align:left;display:grid;gap:13px;font-size:12px;background:#fff;box-shadow:0 8px 25px #2234220a}.ticket div{display:flex;justify-content:space-between;gap:10px}.ticket span{flex:none;color:var(--muted)}.ticket b{font-weight:750;text-align:right}.ticket div:last-child{padding-top:13px;border-top:1px dashed var(--line);color:var(--brand)}
+  .list{display:grid;gap:11px;padding-top:5px}.row{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid var(--line);border-radius:17px;padding:9px;text-align:left;width:100%;transition:border .2s,box-shadow .2s}.row:hover{border-color:#b7cdbb;box-shadow:0 7px 20px #314c3111}.row .t{width:75px;height:77px;border-radius:12px;flex:none;overflow:hidden}.row .t .artwork{height:100%}.row .row-info{min-width:0}.row b{font-size:13px;line-height:1.55;font-weight:800;letter-spacing:-.04em;display:block}.row span{display:block;font-size:11px;color:var(--muted);margin-top:7px}.tabs{display:flex;flex:none;border-top:1px solid var(--line);background:#fff;padding:9px 4px max(14px,env(safe-area-inset-bottom))}.tabs button{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;color:#a0a9a0;font-size:10px;font-weight:700}.tabs button.on{color:var(--brand)}.tabs svg{width:21px;height:21px}.count[hidden]{display:none}.count{position:absolute;top:1px;right:0;display:grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border-radius:10px;background:var(--brand);color:white;font-size:10px;font-weight:800}
+  @media(max-width:860px){.about{display:none}body{gap:0}}@media(max-width:480px){body{padding:0;align-items:stretch;background:var(--phone)}.phone{width:100%;height:100vh;height:100dvh;max-height:none;border-radius:0;box-shadow:none}.status{display:none}.screen{inset:0}.hero-illustration{inset:58px 0 170px}}@media(max-height:690px){.hero-illustration{inset:45px 0 152px}.hero-start h1{font-size:30px}.hero-start p{margin-top:6px}.detail-art{height:195px}.actions{padding:10px 0 12px}.round{height:51px;width:51px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -171,23 +44,23 @@
 </aside>
 
 <div class="phone" id="phone">
-  <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+  <div class="status"><span>9:41</span><span class="status-icons"><svg width="19" height="13" viewBox="0 0 19 13" aria-hidden="true"><path d="M1 12V9M5 12V7M9 12V5M13 12V3" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg><svg width="17" height="13" viewBox="0 0 17 13" aria-hidden="true"><path d="M1 4Q8-2 16 4M4 7Q8 4 13 7M7 10h2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg><svg width="24" height="13" viewBox="0 0 24 13" aria-hidden="true"><rect x="1" y="1" width="19" height="11" rx="3" stroke="currentColor" fill="none"/><rect x="3" y="3" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M22 4v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></div>
 
   <!-- 1. 시작 -->
   <section class="screen" id="s-start">
     <div class="hero-start">
-      <div class="logo">주말살롱</div>
+      <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M5 19V8l7-4 7 4v11M8 19v-7h8v7M4 19h16" stroke-linecap="round" stroke-linejoin="round"/></svg></span>주말살롱</div><div class="hero-illustration" aria-hidden="true"><svg viewBox="0 0 390 460" preserveAspectRatio="xMidYMid meet"><defs><pattern id="heroDots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#b6c7b5" opacity=".55"/></pattern><filter id="heroShadow"><feDropShadow dx="0" dy="13" stdDeviation="14" flood-color="#526a55" flood-opacity=".18"/></filter></defs><circle cx="196" cy="218" r="161" fill="#e2ecdf"/><circle cx="196" cy="218" r="145" fill="url(#heroDots)"/><path d="M43 321Q102 292 156 320T337 319" stroke="#b9cbbc" stroke-width="2" fill="none"/><g transform="translate(53 88) rotate(-10 117 123)" filter="url(#heroShadow)"><rect x="0" y="0" width="232" height="262" rx="22" fill="#fffef9"/><rect x="16" y="16" width="200" height="230" rx="12" fill="#c6d7c4"/><path d="M16 162Q96 119 216 167V246H16Z" fill="#a2bda2"/><ellipse cx="116" cy="192" rx="77" ry="17" fill="#718e783b"/><path d="M77 123Q80 104 91 103L143 103Q157 111 154 123L144 195Q139 218 114 218Q91 218 88 196Z" fill="#f2e2cb" stroke="#a58b76" stroke-width="3"/><ellipse cx="115" cy="122" rx="39" ry="12" fill="#f7e8d7" stroke="#a58b76" stroke-width="3"/><ellipse cx="115" cy="122" rx="28" ry="6" fill="#cfb49b"/><path d="M157 131Q186 127 178 154Q175 166 150 166" stroke="#a58b76" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M95 155Q107 149 120 157" fill="none" stroke="#d7bda4" stroke-width="3"/><circle cx="184" cy="51" r="26" fill="#f4ecce"/><path d="M174 52l9 10 14-20" stroke="#608269" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(246 210) rotate(12 44 57)" filter="url(#heroShadow)"><rect width="98" height="126" rx="14" fill="#fffdf7"/><rect x="8" y="8" width="82" height="83" rx="8" fill="#ead4b6"/><path d="M23 77q-6-28 17-38t38 14" fill="#d6a677"/><path d="M28 52Q45 17 72 49M40 65q16-37 36-9" stroke="#fff0d9" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M23 107h49" stroke="#b9c8b5" stroke-width="5" stroke-linecap="round"/></g><path d="M52 117l8-14 8 14 14 8-14 8-8 14-8-14-14-8Z" fill="#e7c886"/><circle cx="314" cy="105" r="9" fill="#e7c886"/><path d="M303 360l7-12 7 12 12 7-12 7-7 12-7-12-12-7Z" fill="#a9c6aa"/></svg></div><div class="hero-copy"><span class="eyebrow">MAKE YOUR WEEKEND SPECIAL</span>
       <h1>이번 주말,<br>뭐 배워볼까?</h1>
-      <p>취향을 고르면 동네 원데이클래스를<br>카드로 하나씩 보여드려요.</p>
+      <p>취향을 고르면 동네 원데이클래스를<br>카드로 하나씩 보여드려요.</p></div>
     </div>
-    <div class="cta"><button class="btn" data-go="s-pref">시작하기</button></div>
+    <div class="cta"><button class="btn" data-go="s-pref">내 취향 클래스 찾기 &nbsp; →</button></div><div class="start-note">새로운 취미의 시작, 주말살롱</div>
   </section>
 
   <!-- 2. 관심사 -->
   <section class="screen hidden" id="s-pref">
-    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로">←</button><h2>취향 고르기</h2><span style="width:40px"></span></div>
-    <div class="content">
-      <div class="q">관심 있는 분야를<br>골라 주세요</div>
+    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5-7 7 7 7"/></svg></button><h2>취향 고르기</h2><span style="width:40px"></span></div>
+    <div class="progress-track"></div><div class="content">
+      <span class="eyebrow">STEP 01 / PERSONALIZE</span><div class="q">관심 있는 분야를<br>골라 주세요</div>
       <div class="sub">2개 이상 고르면 다음으로 넘어가요.</div>
       <div class="chips" id="chips"></div>
       <div class="label">언제 갈 수 있나요?</div>
@@ -209,12 +82,12 @@
   <!-- 3. 스와이프 -->
   <section class="screen hidden" id="s-swipe">
     <div class="topbar">
-      <button class="icon-btn" data-back aria-label="뒤로">←</button>
+      <button class="icon-btn" data-back aria-label="뒤로"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5-7 7 7 7"/></svg></button>
       <h2 id="deckTitle">추천 클래스</h2>
-      <button class="icon-btn" data-go="s-saved" aria-label="찜 목록">♥<span class="count" id="savedCount" hidden>0</span></button>
+      <button class="icon-btn" data-go="s-saved" aria-label="찜 목록"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20.8 8.2c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11a4.8 4.8 0 0 1 8.8-2.4 4.8 4.8 0 0 1 8.8 2.4Z"/></svg><span class="count" id="savedCount" hidden>0</span></button>
     </div>
     <div class="deck" id="deck">
-      <div class="hint" id="hint">← 넘기기 · 찜하기 →</div>
+      <div class="hint" id="hint">왼쪽으로 패스 · 오른쪽으로 찜</div>
       <div class="empty" id="empty">
         <b style="color:var(--ink);font-size:18px">추천을 다 봤어요</b>
         <span>조건을 바꾸거나 찜한 클래스를 확인해 보세요.</span>
@@ -222,9 +95,9 @@
       </div>
     </div>
     <div class="actions">
-      <button class="round" id="nopeBtn" aria-label="넘기기"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9aa0ae" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <button class="round small" id="infoBtn" aria-label="상세 보기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#191b22" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
-      <button class="round" id="likeBtn" aria-label="찜하기"><svg width="28" height="28" viewBox="0 0 24 24" fill="#ff5a3c"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.2 5 6.8 5c2 0 3.4 1.1 5.2 3 1.8-1.9 3.2-3 5.2-3 3.6 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg></button>
+      <button class="round" id="nopeBtn" aria-label="넘기기"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#788b7c" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="round small" id="infoBtn" aria-label="상세 보기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#376c55" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
+      <button class="round" id="likeBtn" aria-label="찜하기"><svg width="28" height="28" viewBox="0 0 24 24" fill="#376c55"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.2 5 6.8 5c2 0 3.4 1.1 5.2 3 1.8-1.9 3.2-3 5.2-3 3.6 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg></button>
     </div>
     <div class="match" id="match">
       <div class="thumb" id="matchThumb"></div>
@@ -237,9 +110,9 @@
 
   <!-- 4. 상세 -->
   <section class="screen hidden detail" id="s-detail">
-    <div class="detail-art" id="dArt"><button class="icon-btn" data-back aria-label="뒤로">←</button></div>
+    <div class="detail-art" id="dArt"><button class="icon-btn" data-back aria-label="뒤로"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5-7 7 7 7"/></svg></button></div>
     <div class="content">
-      <h1 id="dTitle"></h1>
+      <span class="eyebrow" style="margin-top:10px">THE WEEKEND EDIT</span><h1 id="dTitle"></h1>
       <div class="meta" id="dMeta"></div>
       <div class="host"><div class="avatar" id="dAvatar"></div><div><b id="dHost"></b><div style="font-size:13px;color:var(--muted)" id="dHostSub"></div></div></div>
       <p class="desc" id="dDesc"></p>
@@ -252,9 +125,9 @@
 
   <!-- 5. 예약 -->
   <section class="screen hidden" id="s-book">
-    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로">←</button><h2>예약하기</h2><span style="width:40px"></span></div>
+    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5-7 7 7 7"/></svg></button><h2>예약하기</h2><span style="width:40px"></span></div>
     <div class="content">
-      <div class="label" style="margin-top:4px">시간 선택</div>
+      <div class="booking-intro"><span class="eyebrow">YOUR RESERVATION</span><h3>설레는 주말을 예약해요</h3><p>원하는 시간과 인원을 선택해 주세요.</p></div><div class="label" style="margin-top:4px">시간 선택</div>
       <div class="slots" id="slots"></div>
       <div class="label">인원</div>
       <div class="stepper"><button type="button" id="minus" aria-label="인원 줄이기">−</button><b id="ppl">1</b><button type="button" id="plus" aria-label="인원 늘리기">+</button><span style="font-size:13px;color:var(--muted)">최대 4명</span></div>
@@ -280,12 +153,12 @@
 
   <!-- 7. 찜 목록 -->
   <section class="screen hidden" id="s-saved">
-    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로">←</button><h2>찜한 클래스</h2><span style="width:40px"></span></div>
+    <div class="topbar"><button class="icon-btn" data-back aria-label="뒤로"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5-7 7 7 7"/></svg></button><h2>찜한 클래스</h2><span style="width:40px"></span></div>
     <div class="content"><div class="list" id="savedList"></div></div>
     <div class="tabs">
-      <button data-go="s-swipe"><span>◎</span>둘러보기</button>
-      <button class="on"><span>♥</span>찜</button>
-      <button data-go="s-done" id="tabBooked" disabled style="opacity:.4"><span>▣</span>예약</button>
+      <button data-go="s-swipe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="m9 15 6-6M9 9h6v6"/></svg>둘러보기</button>
+      <button class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-9-5.8-9-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.2-9 11-9 11Z"/></svg>찜</button>
+      <button data-go="s-done" id="tabBooked" disabled style="opacity:.4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v5m10-5v5M3 11h18m-13 5h8"/></svg>예약</button>
     </div>
   </section>
 </div>
@@ -309,7 +182,37 @@ const SLOT_TIMES = ["11:00","13:30","16:00","18:30"];
 const state = {cats:new Set(["도자기","베이킹"]), when:"토", budget:60000, deck:[], saved:[], current:null, slot:null, ppl:1, booked:null};
 const navStack = [];
 const won = n => n.toLocaleString("ko-KR")+"원";
-const art = (c) => `linear-gradient(150deg, ${c[0]}, ${c[1]})`;
+// 외부 이미지가 필요 없는, 분야별 고유 벡터 아트워크.
+// 기존 CLASSES의 c 색상 데이터는 그대로 유지합니다.
+const art = c => `linear-gradient(150deg, ${c[0]}, ${c[1]})`;
+const icon = (name, size=20) => {
+  const paths = {
+    "도자기":'<path d="M7 4h10M6 7c0 2 2 2 2 5l1 7h6l1-7c0-3 2-3 2-5H6ZM9 12h6"/>',
+    "베이킹":'<path d="M4 12h16l-2 8H6l-2-8ZM6 12C3 7 8 4 11 8c2-6 10-3 8 4"/>',
+    "향수":'<rect x="5" y="9" width="14" height="12" rx="3"/><path d="M9 9V5h6v4M11 3h2M9 15h6"/>',
+    "가죽공예":'<rect x="4" y="6" width="16" height="13" rx="3"/><path d="M4 11h16M15 15h2"/>',
+    "드로잉":'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7 16 4-5 3 2 3-5M8 8h.01"/>',
+    "꽃꽂이":'<path d="M12 21V10M12 15c-6 1-8-1-8-5 4 0 7 1 8 5Zm0-2c5 0 8-2 8-6-4 0-7 2-8 6Z"/><circle cx="12" cy="6" r="3"/>',
+    "요리":'<path d="M4 10h16v4a8 8 0 0 1-16 0v-4ZM2 10h20M8 7V4m4 3V3m4 4V4"/>',
+    "캔들":'<rect x="6" y="10" width="12" height="11" rx="2"/><path d="M12 10V8m0-1c-4-3-1-5 0-6 2 2 4 4 0 6Z"/>'
+  };
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||paths["드로잉"]}</svg>`;
+};
+function artwork(c){
+  const base = `<rect width="360" height="470" fill="${c.c[0]}"/><path d="M0 0H360V470H0Z" fill="#fff" opacity=".13"/><circle cx="293" cy="102" r="146" fill="#fff" opacity=".17"/><circle cx="34" cy="340" r="128" fill="${c.c[1]}" opacity=".18"/><path d="M0 412Q143 360 360 422V470H0Z" fill="${c.c[1]}" opacity=".11"/>`;
+  const common = `stroke-linecap="round" stroke-linejoin="round"`;
+  const shapes = {
+  "도자기":`<ellipse cx="190" cy="375" rx="122" ry="25" fill="#5e453c" opacity=".16"/><path d="M108 150Q117 133 133 133H239Q257 142 251 164L235 335Q228 363 185 364Q144 363 137 335Z" fill="#f4e5d3" stroke="#a57e66" stroke-width="4"/><ellipse cx="181" cy="150" rx="72" ry="21" fill="#f5e9dd" stroke="#a57e66" stroke-width="4"/><ellipse cx="181" cy="150" rx="48" ry="10" fill="#b99276"/><path d="M250 183Q319 173 300 238Q291 268 243 264" fill="none" stroke="#ebd2bb" stroke-width="20"/><path d="M250 183Q319 173 300 238Q291 268 243 264" fill="none" stroke="#a57e66" stroke-width="4"/><path d="M146 258Q182 233 225 260M148 281Q188 293 226 280" stroke="#c1a28c" stroke-width="3" fill="none" opacity=".8"/>`,
+  "베이킹":`<ellipse cx="185" cy="357" rx="147" ry="36" fill="#fdf4df"/><ellipse cx="185" cy="356" rx="130" ry="26" fill="#c6a376" opacity=".3"/><g transform="rotate(-13 143 264)"><path d="M65 276Q70 196 142 186Q204 194 222 273Z" fill="#b36b39" stroke="#89512f" stroke-width="5"/><path d="M88 264Q99 211 141 207Q179 213 193 263" fill="none" stroke="#e5ad66" stroke-width="18" stroke-linecap="round"/><path d="M112 228l21 20m17-24 18 22" stroke="#8f522f" stroke-width="5"/></g><g transform="translate(102 22) rotate(18 210 260)"><path d="M145 281Q161 206 227 202Q284 209 294 286Z" fill="#d99755" stroke="#9c6335" stroke-width="5"/><path d="M174 266Q185 227 230 223Q270 240 269 274" fill="none" stroke="#f2bc78" stroke-width="15"/></g><path d="M72 141Q137 109 190 144" fill="none" stroke="#fff6e8" stroke-width="4" stroke-dasharray="4 13"/>`,
+  "향수":`<ellipse cx="180" cy="371" rx="122" ry="23" fill="#574672" opacity=".15"/><rect x="106" y="179" width="157" height="170" rx="26" fill="#faf5fb" opacity=".9" stroke="#8e7da2" stroke-width="4"/><rect x="120" y="197" width="129" height="137" rx="18" fill="#e6c7de" opacity=".6"/><rect x="152" y="130" width="65" height="51" rx="8" fill="#e8dce8" stroke="#8e7da2" stroke-width="4"/><rect x="142" y="108" width="86" height="27" rx="5" fill="#5b4a75"/><rect x="135" y="240" width="101" height="60" rx="3" fill="#fffdfa"/><text x="185" y="264" text-anchor="middle" font-size="12" font-family="serif" fill="#6b587a" letter-spacing="4">NOTE</text><path d="M156 275h58" stroke="#b7a3b9"/><g fill="#fff" opacity=".56"><circle cx="62" cy="169" r="10"/><circle cx="295" cy="120" r="13"/><circle cx="309" cy="244" r="7"/></g>`,
+  "가죽공예":`<ellipse cx="191" cy="367" rx="140" ry="23" fill="#4f3826" opacity=".2"/><g transform="rotate(-11 183 242)"><rect x="70" y="147" width="227" height="195" rx="22" fill="#734a32" stroke="#513520" stroke-width="5"/><rect x="82" y="160" width="204" height="171" rx="15" fill="#b78359"/><path d="M85 226h198" stroke="#6f4933" stroke-width="4"/><path d="M100 176h167v139H100Z" fill="none" stroke="#f5d1a9" stroke-width="2.5" stroke-dasharray="3 8"/><rect x="195" y="218" width="80" height="48" rx="9" fill="#88563c"/><circle cx="241" cy="242" r="6" fill="#ead0a2"/></g><path d="M57 112l34 47m-17-56 34 47" stroke="#f2d3ad" stroke-width="5" stroke-linecap="round"/>`,
+  "드로잉":`<g transform="rotate(-9 186 240)"><rect x="67" y="92" width="244" height="284" rx="17" fill="#354f53"/><rect x="80" y="104" width="218" height="258" rx="8" fill="#f9f4e9"/><path d="M111 294Q121 211 169 194Q208 152 258 199" stroke="#d88f7c" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="184" cy="181" r="36" fill="#f1cf89"/><path d="M117 284Q143 247 178 269T253 251" fill="none" stroke="#4f958b" stroke-width="16" stroke-linecap="round"/><path d="M122 314Q190 326 252 305" stroke="#526f8b" stroke-width="5" fill="none"/><circle cx="280" cy="350" r="4" fill="#b7c7b6"/></g><path d="M277 95l51-69" stroke="#e7dfca" stroke-width="11" stroke-linecap="round"/><path d="M327 26l8-13-14 5Z" fill="#434c4a"/>`,
+  "꽃꽂이":`<path d="M116 267 141 373H227L252 267Z" fill="#f3ddd4" stroke="#ad8a80" stroke-width="3"/><ellipse cx="184" cy="267" rx="69" ry="16" fill="#caa79c"/><g stroke="#4c7761" stroke-width="5" fill="none"><path d="M181 279 123 120M181 278 217 90M181 283 262 149M182 282 85 200M183 284 278 226"/></g><g fill="#719b79"><ellipse cx="155" cy="203" rx="14" ry="29" transform="rotate(-45 155 203)"/><ellipse cx="229" cy="187" rx="15" ry="29" transform="rotate(42 229 187)"/><ellipse cx="121" cy="242" rx="14" ry="25" transform="rotate(-65 121 242)"/></g><g fill="#f3e1bd"><circle cx="120" cy="122" r="31"/><circle cx="213" cy="94" r="34"/></g><g fill="#d66e76"><circle cx="261" cy="151" r="28"/><circle cx="81" cy="200" r="25"/></g><g fill="#f4c9cf"><circle cx="112" cy="111" r="16"/><circle cx="224" cy="85" r="17"/><circle cx="267" cy="140" r="13"/><circle cx="73" cy="192" r="12"/></g><g fill="#e7b36d"><circle cx="120" cy="122" r="11"/><circle cx="213" cy="94" r="12"/><circle cx="261" cy="151" r="10"/><circle cx="81" cy="200" r="9"/></g>`,
+  "요리":`<ellipse cx="180" cy="349" rx="153" ry="37" fill="#faf0d9"/><ellipse cx="180" cy="342" rx="133" ry="29" fill="#e6dbbb"/><path d="M76 246Q178 182 284 246Q276 323 181 331Q90 327 76 246Z" fill="#f2e7d2" stroke="#c6a87f" stroke-width="5"/><ellipse cx="181" cy="246" rx="105" ry="35" fill="#f7e9c8"/><g fill="none" stroke="#ddb15f" stroke-width="8" stroke-linecap="round"><path d="M105 246q50-53 99 0t44-8"/><path d="M116 260q41-44 85-5t44-5"/><path d="M126 231q33 24 74-2t45 18"/></g><g fill="#71996c"><ellipse cx="118" cy="222" rx="11" ry="6" transform="rotate(35 118 222)"/><ellipse cx="211" cy="225" rx="13" ry="7" transform="rotate(-35 211 225)"/><ellipse cx="185" cy="270" rx="11" ry="6" transform="rotate(30 185 270)"/></g><circle cx="144" cy="255" r="8" fill="#bd5d42"/><circle cx="229" cy="247" r="8" fill="#bd5d42"/>`,
+  "캔들":`<ellipse cx="185" cy="372" rx="123" ry="22" fill="#6f563f" opacity=".15"/><rect x="89" y="203" width="180" height="151" rx="20" fill="#fbf6e8" stroke="#bfa98c" stroke-width="4"/><path d="M89 242h180v91q0 21-21 21H110q-21 0-21-21Z" fill="#f1daba"/><ellipse cx="179" cy="203" rx="90" ry="18" fill="#f5e5cb" stroke="#bfa98c" stroke-width="4"/><ellipse cx="179" cy="203" rx="72" ry="10" fill="#e2c9a6"/><path d="M180 197v-35" stroke="#695b48" stroke-width="4"/><path d="M180 163Q148 129 180 97Q204 135 180 163Z" fill="#f4bb66"/><path d="M180 153Q169 139 181 122Q190 143 180 153Z" fill="#fff5c9"/><rect x="132" y="261" width="94" height="51" rx="4" fill="#fffbf0"/><text x="179" y="281" text-anchor="middle" font-family="serif" font-size="12" fill="#8a765f" letter-spacing="2">SLOW</text><text x="179" y="296" text-anchor="middle" font-family="serif" font-size="9" fill="#8a765f" letter-spacing="2">MOMENTS</text><path d="M70 112l13-20m220 61 16-11" stroke="#fff9e5" stroke-width="5" stroke-linecap="round"/>`
+  };
+  return `<svg class="artwork" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 470" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${c.cat} 클래스 일러스트">${base}${shapes[c.cat]||shapes["도자기"]}<path d="M27 28h47M27 28v47" stroke="#fff" opacity=".27" stroke-width="2" ${common}/><circle cx="317" cy="415" r="34" stroke="#fff" stroke-width="1.5" fill="none" opacity=".25"/></svg>`;
+}
 
 // ---------- 화면 이동 ----------
 let currentId = "s-start";
@@ -346,7 +249,7 @@ function onEnter(id){
 
 // ---------- 2. 관심사 ----------
 const chipsEl = document.getElementById("chips");
-chipsEl.innerHTML = CATS.map(c=>`<button type="button" class="chip" aria-pressed="${state.cats.has(c)}" data-c="${c}">${c}</button>`).join("");
+chipsEl.innerHTML = CATS.map(c=>`<button type="button" class="chip" aria-pressed="${state.cats.has(c)}" data-c="${c}"><span class="chip-icon">${icon(c)}</span><span>${c}</span></button>`).join("");
 chipsEl.addEventListener("click", e=>{
   const b = e.target.closest(".chip"); if(!b) return;
   const c = b.dataset.c; state.cats.has(c) ? state.cats.delete(c) : state.cats.add(c);
@@ -382,10 +285,7 @@ function buildDeck(){
 function makeCard(c){
   const el = document.createElement("div");
   el.className = "card"; el.dataset.id = c.id;
-  el.innerHTML = `<div class="art" style="background:${art(c.c)}"></div>
-    <svg class="art" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <circle cx="230" cy="90" r="70" fill="rgba(255,255,255,.18)"/><circle cx="70" cy="170" r="110" fill="rgba(255,255,255,.10)"/>
-    </svg>
+  el.innerHTML = `<div class="art">${artwork(c)}</div>
     <div class="shade"></div>
     <div class="stamp like">찜</div><div class="stamp nope">패스</div>
     <div class="info"><small>${c.cat} · ${c.area}</small><h3>${c.title}</h3><p>${c.time} · ${won(c.price)} · ${c.days.map(d=>d+"요일").join("/")}</p></div>`;
@@ -437,7 +337,7 @@ function updateCount(){ const el = document.getElementById("savedCount"); el.hid
 const matchEl = document.getElementById("match");
 function showMatch(c){
   state.matched = c;
-  document.getElementById("matchThumb").style.background = art(c.c);
+  document.getElementById("matchThumb").innerHTML = artwork(c);
   document.getElementById("matchText").textContent = `${c.title} · 이번 주말 자리가 남아 있어요.`;
   matchEl.classList.add("show");
 }
@@ -447,10 +347,11 @@ document.getElementById("matchBook").onclick = ()=>{ matchEl.classList.remove("s
 // ---------- 4. 상세 ----------
 function renderDetail(){
   const c = state.current; if(!c) return;
-  document.getElementById("dArt").style.background = art(c.c);
+  document.getElementById("dArt").querySelector(".artwork")?.remove();
+  document.getElementById("dArt").insertAdjacentHTML("afterbegin", artwork(c));
   document.getElementById("dTitle").textContent = c.title;
   document.getElementById("dMeta").innerHTML = [c.cat, c.area, c.time, c.days.map(d=>d+"요일").join("/")].map(t=>`<span>${t}</span>`).join("");
-  document.getElementById("dAvatar").style.background = art([c.c[1], c.c[0]]);
+  document.getElementById("dAvatar").innerHTML = artwork(c);
   document.getElementById("dHost").textContent = c.host;
   document.getElementById("dHostSub").textContent = c.hostSub;
   document.getElementById("dDesc").textContent = c.desc;
@@ -468,7 +369,8 @@ function renderBook(){
     const full = (c.id + i + d.charCodeAt(0)) % 5 === 0;
     return `<button type="button" class="slot" aria-pressed="false" data-s="${d} ${t}" ${full?"disabled":""}><b>${d}요일 ${t}</b><span>${full?"마감":"자리 "+(2+(c.id*i)%5)+"석 남음"}</span></button>`;
   })).join("");
-  updateTotal(); validate();
+  state.ppl = 1; errEl.textContent = "";
+  updateTotal();
 }
 slotsEl.addEventListener("click", e=>{
   const b = e.target.closest(".slot"); if(!b || b.disabled) return;
@@ -477,7 +379,7 @@ slotsEl.addEventListener("click", e=>{
 });
 document.getElementById("minus").onclick = ()=>{ state.ppl = Math.max(1, state.ppl-1); updateTotal(); };
 document.getElementById("plus").onclick = ()=>{ state.ppl = Math.min(4, state.ppl+1); updateTotal(); };
-function updateTotal(){ document.getElementById("ppl").textContent = state.ppl; if(state.current) document.getElementById("total").textContent = won(state.current.price*state.ppl); }
+function updateTotal(){ document.getElementById("ppl").textContent = state.ppl; if(state.current) document.getElementById("total").textContent = won(state.current.price*state.ppl); validate(); }
 phoneEl.addEventListener("input", ()=>{
   const d = phoneEl.value.replace(/\D/g,"").slice(0,11);
   phoneEl.value = d.length>7 ? `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}` : d.length>3 ? `${d.slice(0,3)}-${d.slice(3)}` : d;
@@ -519,8 +421,8 @@ document.getElementById("doneBtn").onclick = ()=>{ navStack.length=0; navStack.p
 function renderSaved(){
   const el = document.getElementById("savedList");
   el.innerHTML = state.saved.length ? state.saved.map(c=>`
-    <button class="row" data-id="${c.id}"><div class="t" style="background:${art(c.c)}"></div>
-    <div><b>${c.title}</b><span>${c.area} · ${won(c.price)}</span></div></button>`).join("")
+    <button class="row" data-id="${c.id}"><div class="t">${artwork(c)}</div>
+    <div class="row-info"><b>${c.title}</b><span>${c.area} · ${won(c.price)}</span></div></button>`).join("")
     : `<p style="color:var(--muted);text-align:center;margin-top:40px">아직 찜한 클래스가 없어요.<br>카드를 오른쪽으로 넘겨 보세요.</p>`;
 }
 document.getElementById("savedList").addEventListener("click", e=>{

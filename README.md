@@ -15,4 +15,4 @@
 
 ## 기술
 
-HTML · CSS · JavaScript (프레임워크 없음), Pointer Events 기반 스와이프, 모바일 반응형. 파일 하나(`index.html`)로 구성돼 있습니다.
+HTML · CSS · JavaScript (프레임워크 없음), Pointer Events 기반 스와이프, 모바일 반응형. 일러스트는 외부 이미지 없이 인라인 SVG로 그렸습니다. 파일 하나(`index.html`)로 구성돼 있습니다.
